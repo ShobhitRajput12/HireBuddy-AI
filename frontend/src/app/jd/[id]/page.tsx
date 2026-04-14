@@ -362,7 +362,7 @@ const CampaignAnalytics = ({ candidates, job }: { candidates: any[]; job: any })
           <Zap size={14} color="#F59E0B" /> Market Skill Coverage Map
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-          {skillCoverage.length > 0 ? skillCoverage.map(s => (
+          {skillCoverage.length > 0 ? skillCoverage.map((s: any) => (
             <div key={s.name} style={{ padding: '12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: s.pct > 70 ? 'rgba(16,185,129,0.03)' : s.pct < 30 ? 'rgba(220,38,38,0.03)' : 'transparent' }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: '13px', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</div>
