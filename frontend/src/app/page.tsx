@@ -272,7 +272,7 @@ export default function Dashboard() {
               >
                 <CheckCircle2 size={18} color="var(--success)" />
                 <span style={{ fontWeight: '800', fontSize: '16px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>Closed Roles</span>
-                <span size={12} className="badge badge-neutral" style={{ background: 'rgba(0,0,0,0.05)', color: 'var(--text-muted)' }}>{closedJobs.length}</span>
+                <span className="badge badge-neutral" style={{ background: 'rgba(0,0,0,0.05)', color: 'var(--text-muted)', fontSize: '12px' }}>{closedJobs.length}</span>
                 <ChevronDown size={16} color="var(--text-muted)" style={{ transform: showClosed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
               
