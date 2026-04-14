@@ -255,6 +255,10 @@ const CandidateCard = ({ candidate, rank, onDelete }: { candidate: any; rank?: n
 };
 
 // ── Campaign Intelligence Dashboard ──────────────────────────
+type RequiredSkill = string | { name: string };
+type CandidateSkill = string | { name: string };
+type SkillCoverageItem = { name: string; count: number; pct: number };
+
 const CampaignAnalytics = ({ candidates, job }: { candidates: any[]; job: any }) => {
   const funnelStages = ['Sourcing', 'Screening', 'Interview', 'Offer', 'Hired'];
   const funnelData = funnelStages.map(s => ({
@@ -278,16 +282,28 @@ const CampaignAnalytics = ({ candidates, job }: { candidates: any[]; job: any })
     }).length
   }));
 
-  const requiredSkills = job.jd_analysis?.must_have_skills || job.jd_analysis?.required_skills || [];
-  const skillCoverage = requiredSkills.map((s: any) => {
-    const name = typeof s === 'string' ? s : s.name;
-    const matchCount = candidates.filter(c => 
-      (c.validated_skills?.top_skills || []).some((sk: any) => 
-        (typeof sk === 'string' ? sk : sk.name).toLowerCase().includes(name.toLowerCase())
-      )
-    ).length;
-    return { name, count: matchCount, pct: candidates.length ? Math.round((matchCount / candidates.length) * 100) : 0 };
-  }).sort((a: any, b: any) => b.pct - a.pct);
+  const rawRequiredSkills = job.jd_analysis?.must_have_skills ?? job.jd_analysis?.required_skills ?? [];
+  const requiredSkills: RequiredSkill[] = Array.isArray(rawRequiredSkills) ? rawRequiredSkills : [];
+
+  const skillCoverage: SkillCoverageItem[] = requiredSkills
+    .map((skill): SkillCoverageItem | null => {
+      const name = (typeof skill === 'string' ? skill : skill?.name)?.trim();
+      if (!name) return null;
+
+      const matchCount = candidates.filter(c =>
+        (c.validated_skills?.top_skills || []).some((sk: CandidateSkill) =>
+          (typeof sk === 'string' ? sk : sk.name).toLowerCase().includes(name.toLowerCase())
+        )
+      ).length;
+
+      return {
+        name,
+        count: matchCount,
+        pct: candidates.length ? Math.round((matchCount / candidates.length) * 100) : 0,
+      };
+    })
+    .filter((item): item is SkillCoverageItem => item !== null)
+    .sort((a, b) => b.pct - a.pct);
 
   const maxFunnel = Math.max(...funnelData.map(d => d.count), 1);
   const maxScore = Math.max(...scoreDist.map(d => d.count), 1);
@@ -362,7 +378,7 @@ const CampaignAnalytics = ({ candidates, job }: { candidates: any[]; job: any })
           <Zap size={14} color="#F59E0B" /> Market Skill Coverage Map
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-          {skillCoverage.length > 0 ? skillCoverage.map((s: any) => (
+          {skillCoverage.length > 0 ? skillCoverage.map(s => (
             <div key={s.name} style={{ padding: '12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: s.pct > 70 ? 'rgba(16,185,129,0.03)' : s.pct < 30 ? 'rgba(220,38,38,0.03)' : 'transparent' }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: '13px', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</div>
